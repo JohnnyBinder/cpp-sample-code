@@ -19,6 +19,7 @@ struct Node {
 Node* IterativeInsert(Node* root_ptr, int data) {
 	if (!root_ptr) {
 		root_ptr = new Node{data, nullptr, nullptr};
+		return root_ptr;
 	}
 
 	Node* node = root_ptr;
