@@ -118,6 +118,27 @@ Node* IterativeMaxSearch(Node* node) {
 	return node;
 }
 
+// Input: Integer key to search for.
+// Iteratively traverses the BST to find first node with matching key.
+// Returns: Node pointer to the node if found, nullptr otherwise.
+Node* IterativeSearch(Node* node, int data) {
+	if (!node) {
+		return nullptr;
+	}
+
+	while (node) {
+		if (data == node->data) {
+			return node;
+		} else if (data < node->data) {
+			node = node->left;
+		} else {
+			node = node->right;
+		}
+	}
+
+	return nullptr;
+}
+
 int main() {
 	cout << "Input a space-separated list of integers as initializers for the BST (enter to submit): ";
 	Node* root_ptr = InitializeBST();
@@ -132,4 +153,13 @@ int main() {
 
 	Node* node_with_max_key = IterativeMaxSearch(root_ptr);
 	cout << "Iterative max result: (value: " << node_with_max_key->data << ", address: " << node_with_max_key << ")" << endl;
+
+	cout << "Enter a node value to search for: ";
+	int search;
+	cin >> search;
+	Node* node_searched = IterativeSearch(root_ptr, search);
+
+	if (node_searched) cout << "Iterative search result: Found at address: " << node_searched << endl;
+	else cout << "Iterative search result: Not found." << endl;
+
 }
