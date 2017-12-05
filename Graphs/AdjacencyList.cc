@@ -45,7 +45,8 @@ class AdjacencyList {
 		}
 	}
 
-	friend void RecursiveDepthFirstTraversal(weak_ptr<Node> root);
+	friend void DepthFirstPrint(weak_ptr<Node> root);
+	friend void BreadthFirstTraversal(weak_ptr<Node> root);
 
 	private:
 	static void print_node(const weak_ptr<Node> node);
@@ -66,7 +67,7 @@ void AdjacencyList::print_node(const weak_ptr<Node> node) {
 		}
 }
 
-void RecursiveDepthFirstTraversal(weak_ptr<AdjacencyList::Node> root) {
+void DepthFirstPrint(weak_ptr<AdjacencyList::Node> root) {
 		auto node = root.lock();
 
 		if (!node) return;
@@ -76,7 +77,7 @@ void RecursiveDepthFirstTraversal(weak_ptr<AdjacencyList::Node> root) {
 		for (auto& neighbor : node->neighbors) {
 			auto locked_neighbor = neighbor.lock();
 			if (locked_neighbor && !locked_neighbor->visited) {
-				RecursiveDepthFirstTraversal(locked_neighbor);
+				DepthFirstPrint(locked_neighbor);
 			}
 		}
 }
@@ -103,5 +104,5 @@ int main() {
 
 	// Print graph using depth-first traversal
 	cout << "\nDepth-first print: \n";
-	RecursiveDepthFirstTraversal(A);
+	DepthFirstPrint(A);
 }
