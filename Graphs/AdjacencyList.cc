@@ -20,7 +20,7 @@ class AdjacencyList {
 	public: 
 	AdjacencyList() {}
 
-	shared_ptr<Node> add_node(const char& data) {
+	shared_ptr<Node> add_node(char data) {
 		shared_ptr<Node> new_node_ptr = make_shared<Node>(new Node{data});
 		all_nodes_.push_back(new_node_ptr);
 
