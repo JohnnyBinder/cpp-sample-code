@@ -12,7 +12,9 @@ class AdjacencyList {
 	struct Node {
 		char data;
 		bool visited;
-		vector<shared_ptr<Node>> neighbors;
+		vector<weak_ptr<Node>> neighbors;
+
+		Node(const char data) : data{data}, visited{}, neighbors{} {}
 	};
 
 	vector<shared_ptr<Node>> all_nodes_;
@@ -20,50 +22,58 @@ class AdjacencyList {
 	public: 
 	AdjacencyList() {}
 
-	shared_ptr<Node> add_node(char data) {
-		shared_ptr<Node> new_node_ptr = make_shared<Node>(new Node{data});
+	weak_ptr<Node> add_node(const char data) {
+		auto new_node_ptr = make_shared<Node>(data);
 		all_nodes_.push_back(new_node_ptr);
 
 		return new_node_ptr;
 	}
 
-	void connect(const shared_ptr<Node>& node, const shared_ptr<Node>& node_to_connect) {
-		node->neighbors.push_back(node_to_connect);
-		node_to_connect->neighbors.push_back(node);
+	void connect(const weak_ptr<Node>& node, const weak_ptr<Node>& node_to_connect) {
+		node.lock()->neighbors.push_back(node_to_connect);
+		node_to_connect.lock()->neighbors.push_back(node);
 	}
 
-	shared_ptr<Node> get_node_at(int index) {
+	shared_ptr<Node> get_node_at(const int index) {
 		return all_nodes_[index];
 	}
 
 	void print() {
-		for (auto& node : all_nodes_) {
+		for (const auto& node : all_nodes_) {
 			print_node(node);
 			cout << endl;
 		}
 	}
 
-	friend void depth_first_traversal(shared_ptr<Node>& root) {
-		if (!root) return;
-		print_node(root);
+	friend void depth_first_traversal(weak_ptr<Node> root) {
+		auto node = root.lock();
+
+		if (!node) return;
+		print_node(node);
 		cout << endl;
-		root->visited = true;
-		for (auto& neighbor : root->neighbors) {
-			if (!neighbor->visited) {
-				depth_first_traversal(neighbor);
+		node->visited = true;
+		for (auto& neighbor : node->neighbors) {
+			auto locked_neighbor = neighbor.lock();
+			if (locked_neighbor && !locked_neighbor->visited) {
+				depth_first_traversal(locked_neighbor);
 			}
 		}
 	}
 
 	private:
-	static void print_node(const shared_ptr<Node>& node) {
-		cout << "Node " << node->data << " is connected to: ";
+	static void print_node(const weak_ptr<Node> node) {
+		auto locked_node = node.lock();
 
-		ostringstream ss;
-		for (auto& neighbor : node->neighbors) {
-			ss << neighbor->data << ' ';
+		if (locked_node) {
+			cout << "Node " << locked_node->data << " is connected to: ";
+
+			ostringstream ss;
+			for (auto& neighbor : locked_node->neighbors) {
+				auto locked_neighbor = neighbor.lock();
+				ss << locked_neighbor->data << ' ';
+			}
+			cout << setw(10) << left << ss.str();
 		}
-		cout << setw(10) << left << ss.str();
 	}
 };
 
