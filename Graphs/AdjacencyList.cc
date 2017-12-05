@@ -45,23 +45,13 @@ class AdjacencyList {
 		}
 	}
 
-	friend void depth_first_traversal(weak_ptr<Node> root) {
-		auto node = root.lock();
-
-		if (!node) return;
-		print_node(node);
-		cout << endl;
-		node->visited = true;
-		for (auto& neighbor : node->neighbors) {
-			auto locked_neighbor = neighbor.lock();
-			if (locked_neighbor && !locked_neighbor->visited) {
-				depth_first_traversal(locked_neighbor);
-			}
-		}
-	}
+	friend void depth_first_traversal(weak_ptr<Node> root);
 
 	private:
-	static void print_node(const weak_ptr<Node> node) {
+	static void print_node(const weak_ptr<Node> node);
+};
+
+void AdjacencyList::print_node(const weak_ptr<Node> node) {
 		auto locked_node = node.lock();
 
 		if (locked_node) {
@@ -74,8 +64,22 @@ class AdjacencyList {
 			}
 			cout << setw(10) << left << ss.str();
 		}
-	}
-};
+}
+
+void depth_first_traversal(weak_ptr<AdjacencyList::Node> root) {
+		auto node = root.lock();
+
+		if (!node) return;
+		AdjacencyList::print_node(node);
+		cout << endl;
+		node->visited = true;
+		for (auto& neighbor : node->neighbors) {
+			auto locked_neighbor = neighbor.lock();
+			if (locked_neighbor && !locked_neighbor->visited) {
+				depth_first_traversal(locked_neighbor);
+			}
+		}
+}
 
 int main() {
 	AdjacencyList adjacency_list;
