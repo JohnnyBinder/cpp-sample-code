@@ -6,6 +6,8 @@
 
 using namespace std;
 
+// Bidirectional graph implementation using an adjacency list.
+// List is implemented using a vector of shared pointers to Nodes.
 class AdjacencyList {
 	struct Node {
 		char data;
@@ -19,7 +21,7 @@ class AdjacencyList {
 	AdjacencyList() {}
 
 	shared_ptr<Node> add_node(const char& data) {
-		shared_ptr<Node> new_node_ptr(new Node{data});
+		shared_ptr<Node> new_node_ptr = make_shared<Node>(new Node{data});
 		all_nodes_.push_back(new_node_ptr);
 
 		return new_node_ptr;
@@ -30,6 +32,10 @@ class AdjacencyList {
 		node_to_connect->neighbors.push_back(node);
 	}
 
+	shared_ptr<Node> get_node_at(int index) {
+		return all_nodes_[index];
+	}
+
 	void print() {
 		for (auto& node : all_nodes_) {
 			print_node(node);
@@ -37,8 +43,20 @@ class AdjacencyList {
 		}
 	}
 
+	friend void depth_first_traversal(shared_ptr<Node>& root) {
+		if (!root) return;
+		print_node(root);
+		cout << endl;
+		root->visited = true;
+		for (auto& neighbor : root->neighbors) {
+			if (!neighbor->visited) {
+				depth_first_traversal(neighbor);
+			}
+		}
+	}
+
 	private:
-	void print_node(const shared_ptr<Node>& node) const {
+	static void print_node(const shared_ptr<Node>& node) {
 		cout << "Node " << node->data << " is connected to: ";
 
 		ostringstream ss;
@@ -64,9 +82,12 @@ int main() {
 	adjacency_list.connect(A, C);
 	adjacency_list.connect(C, B);
 
-	adjacency_list.connect(A, D);
 	adjacency_list.connect(C, D);
 
-	// Print Adjacency List
+	// Print graph
 	adjacency_list.print();
+
+	// Print graph using depth-first traversal
+	cout << "\nDepth-first print: \n";
+	depth_first_traversal(A);
 }
