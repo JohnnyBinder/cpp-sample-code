@@ -3,7 +3,7 @@
 #include <memory>
 #include <sstream>
 #include <iomanip>
-#include <set>
+#include <unordered_set>
 
 using namespace std;
 
@@ -71,7 +71,7 @@ void AdjacencyList::print_node(const weak_ptr<Node> node) {
 }
 
 void DepthFirstPrint(weak_ptr<AdjacencyList::Node> root) {
-	static set<long> visited;
+	static unordered_set<long> visited;
 	auto node = root.lock();
 
 	if (!node) return;
