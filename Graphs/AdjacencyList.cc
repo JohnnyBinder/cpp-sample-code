@@ -3,6 +3,7 @@
 #include <memory>
 #include <sstream>
 #include <iomanip>
+#include <set>
 
 using namespace std;
 
@@ -10,21 +11,23 @@ using namespace std;
 // List is implemented using a vector of shared pointers to Nodes.
 class AdjacencyList {
 	struct Node {
+		long id;
 		char data;
-		bool visited;
 		vector<weak_ptr<Node>> neighbors;
 
-		Node(const char data) : data{data}, visited{}, neighbors{} {}
+		Node(const char data, const long id) : id{id}, data{data}, neighbors{} {}
 	};
 
+	long current_node_id;
 	vector<shared_ptr<Node>> all_nodes_;
 
 	public: 
-	AdjacencyList() {}
+	AdjacencyList() : current_node_id{} {}
 
 	weak_ptr<Node> add_node(const char data) {
-		auto new_node_ptr = make_shared<Node>(data);
+		auto new_node_ptr = make_shared<Node>(data, this->current_node_id);
 		all_nodes_.push_back(new_node_ptr);
+		++current_node_id;
 
 		return new_node_ptr;
 	}
@@ -68,18 +71,19 @@ void AdjacencyList::print_node(const weak_ptr<Node> node) {
 }
 
 void DepthFirstPrint(weak_ptr<AdjacencyList::Node> root) {
-		auto node = root.lock();
+	static set<long> visited;
+	auto node = root.lock();
 
-		if (!node) return;
-		AdjacencyList::print_node(node);
-		cout << endl;
-		node->visited = true;
-		for (auto& neighbor : node->neighbors) {
-			auto locked_neighbor = neighbor.lock();
-			if (locked_neighbor && !locked_neighbor->visited) {
-				DepthFirstPrint(locked_neighbor);
-			}
+	if (!node) return;
+	AdjacencyList::print_node(node);
+	cout << endl;
+	visited.insert(node->id);
+	for (auto& neighbor : node->neighbors) {
+		auto locked_neighbor = neighbor.lock();
+		if (locked_neighbor && visited.count(locked_neighbor->id) == 0) {
+			DepthFirstPrint(locked_neighbor);
 		}
+	}
 }
 
 int main() {
